@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
-import { IMovie } from "./models/IMovie";
+import { IMovie } from "../models/IMovie";
 
 export class MoviesClient {
     private client: MongoClient;
