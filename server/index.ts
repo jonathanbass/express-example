@@ -1,7 +1,18 @@
 import * as express from "express";
+import * as dotenv from "dotenv";
+import mongoose from "mongoose";
 import { MoviesClient } from "./clients/MoviesClient";
 
 (async () => {
+    mongoose.set('strictQuery', true);
+    dotenv.config();
+    const connectionString = process.env.DATABASE_URL || ".";
+    mongoose.connect(connectionString);
+    const database = mongoose.connection;
+    database.once('connected', () => {
+        console.log('Database Connected');
+    })
+
     const app = express();
     app.use(express.json());
 

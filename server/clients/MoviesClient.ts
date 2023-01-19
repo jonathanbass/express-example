@@ -1,47 +1,37 @@
-import { MongoClient, ObjectId } from "mongodb";
-import * as dotenv from "dotenv";
-import { IMovie } from "../models/IMovie";
+import Movie, { IMovie, MovieModel } from "../models/IMovie";
 
 export class MoviesClient {
-    private client: MongoClient;
-
     private constructor () {
-        dotenv.config();
-        const connection = process.env.DATABASE_URL || ".";
-        this.client = new MongoClient(connection);
+        
     }
 
     public static Create = async () => {
         const instance = new MoviesClient();
-        await instance.client.connect();
-
         return instance;
      };
 
     GetMovie = async (id: string) => {
-        const idQuery = {"_id": new ObjectId(id)};
-        const movie = await this.client.db("movies").collection("movies").findOne(idQuery);
-
-        return movie;
+        return await Movie.findById(id).select('-__v');
     }
 
     GetMovies = async () => {
-        const movies = await this.client.db("movies").collection("movies").find().toArray();
+        const movies = await Movie.find().select('-__v');
         return movies;
     }
 
     CreateMovie = async (movie: IMovie) => {
-        const document = await this.client.db("movies").collection("movies").insertOne(movie);
-        return document.insertedId;
+        const document = new Movie(movie);
+        document.save();
+        return document.id;
     }
 
     UpdateMovie = async (id: string, updatedMovie: IMovie) => {
-        const idQuery = {"_id": new ObjectId(id)};
-        await this.client.db("movies").collection("movies").updateOne(idQuery, { $set: updatedMovie });
+        await Movie.findByIdAndUpdate(
+            id, updatedMovie
+        );
     }
 
     DeleteMovie = async (id: string) => {
-        const idQuery = {"_id": new ObjectId(id)};
-        await this.client.db("movies").collection("movies").deleteOne(idQuery);
+        await Movie.findByIdAndDelete(id);
     }
 }
