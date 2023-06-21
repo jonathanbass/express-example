@@ -1,4 +1,5 @@
 import * as express from "express";
+import * as serverless from "serverless-http";
 import { MoviesClient } from "./clients/MoviesClient";
 
 (async () => {
@@ -35,5 +36,11 @@ import { MoviesClient } from "./clients/MoviesClient";
 
     const port = process.env.PORT || 3001;
 
-    app.listen(port, () => console.log(`Express API listening on PORT ${port}`));
+    if (process.env.ENVIRONMENT === "lambda") {
+        exports.handler = serverless(app);
+    } else {
+        app.listen(port, () => {
+            console.log(`Server is listening on port ${port}.`);
+        });
+    }
 })();
