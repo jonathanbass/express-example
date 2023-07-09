@@ -1,5 +1,5 @@
 import { IMovie } from "../models/IMovie";
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuidv4 } from "uuid";
@@ -19,8 +19,18 @@ export class MoviesClient {
     };
 
     GetMovie = async (id: string) => {
+        const params = {
+            TableName: this.tableName,
+            Key: {
+                id: {
+                    S: id
+                }
+            }
+        };
 
-        return {};
+        const scanCommand = new GetItemCommand(params);
+        const data = await this.documentClient.send(scanCommand);
+        return unmarshall(data.Item ?? {});
     }
 
     GetMovies = async () => {
